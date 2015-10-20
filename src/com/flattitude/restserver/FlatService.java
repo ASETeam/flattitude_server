@@ -7,7 +7,9 @@ package com.flattitude.restserver;
  *  WARNING: All operations are done without security. It MUST be implemented everywhere!
  */
 
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
@@ -15,24 +17,41 @@ import javax.ws.rs.core.Response;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.flattitude.dao.FlatDAO;
+import com.flattitude.dto.Flat;
+
 @Path("/flat")
 public class FlatService {
 	
 	  @Path("/create")
-	  @GET
+	  @POST
 	  @Produces("application/json")
-	  public Response createFlat() throws JSONException {
+	  public Response createFlat(@FormParam("name") String name,
+			  @FormParam("country") String country,
+			  @FormParam("address") String address,
+			  @FormParam("postcode") String postcode,
+			  @FormParam("city") String city,
+			  @FormParam("IBAN") String IBAN,
+			  @FormParam("masterid") String masterid ) throws JSONException {
+		  
 		JSONObject jsonObject = new JSONObject();
 		
 		try{
 			//Must be removed:
 			jsonObject.put("Operation", "Flat Creation");
-			long id = 0;
 			
-			//Successful operation. 
+			Flat flat = new Flat(name, country, address, postcode, city, IBAN);
+			FlatDAO flatDAO = new FlatDAO();
 			
-			jsonObject.put("success", true);
-			jsonObject.put("id", id);
+			int id = flatDAO.create(flat);
+			
+			if (id > -1) {
+				//Successful operation. 
+				jsonObject.put("success", true);
+				jsonObject.put("id", id);
+			} else {
+				jsonObject.put("success", false);
+			}
 		} catch (Exception ex) {
 			jsonObject.put("success", false);
 			

@@ -11,6 +11,16 @@ public class Flat {
     private String address;
     private String iban;
 
+    
+    public Flat(String name, String country, String city, String postcode, String address, String iban) {
+    	this.setName(name);
+    	this.setCountry(country);
+    	this.setCity(city);
+    	this.setPostcode(postcode);
+    	this.setAddress(address);
+    	this.setIban(iban);
+    }
+    
     public int getId() {
         return id;
     }

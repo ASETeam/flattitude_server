@@ -10,7 +10,7 @@ import com.flattitude.dto.User;
 
 public class FlatDAO {
 	
-	public boolean create (Flat flat) {
+	public int create (Flat flat)  {
 		try {
 			Connection con = new Database().Get_Connection();
 			String stmt = "INSERT INTO FLAT VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -25,9 +25,11 @@ public class FlatDAO {
 			ps.setString(7, flat.getIban());
 			ps.setDate(8, new Date(System.currentTimeMillis()));
 			
-			return ps.execute();
+			ps.executeQuery();
+			
+			return 1;
 		} catch (Exception ex) {
-			return false;
+			return -1;
 		}
 	}
 	

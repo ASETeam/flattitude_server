@@ -37,7 +37,7 @@ public class UserService {
 			  	@FormParam("phonenbr") String phone) throws JSONException {
 		
 		  JSONObject jsonObject = new JSONObject();
-		
+			
 			try{
 				//Must be removed:
 				jsonObject.put("Operation", "Register");
@@ -46,10 +46,11 @@ public class UserService {
 				
 				User user = new User(email, firstname, lastname);
 				user.setPhonenbr(phone);
-				boolean state = userDAO.register(user, cryptWithMD5(password));
 				
-				if (state) jsonObject.put("success", true);
-				else jsonObject.put("success", false);
+				int id = userDAO.register(user, cryptWithMD5(password));
+				
+				jsonObject.put("success", true);
+				jsonObject.put("id", id);
 			} catch (Exception ex) {
 				jsonObject.put("success", false);
 				
@@ -57,8 +58,6 @@ public class UserService {
 				jsonObject.put("reason", ex.getMessage());
 			}
 		
-
-		//String result = "@Produces(\"application/json\") Output: \n\nF to C Converter Output: \n\n" + jsonObject;
 		String result = jsonObject.toString();
 		return Response.status(200).entity(result).build();
 	  }
@@ -73,11 +72,18 @@ public class UserService {
 		try{
 			//Must be removed:
 			jsonObject.put("Operation", "Login");
+			UserDAO userDAO = new UserDAO();
 			
+			int id = userDAO.login(email, cryptWithMD5(password));
 			
-			
-			//Successful operation. 
-			jsonObject.put("success", true);
+			if (id > -1) {
+				//Successful operation. 
+				jsonObject.put("success", true);
+				jsonObject.put("id", id);
+			} else {
+				jsonObject.put("success", false);
+				jsonObject.put("reason", "email or password wrong");
+			}
 		} catch (Exception ex) {
 			jsonObject.put("success", false);
 			

@@ -10,10 +10,10 @@ import com.flattitude.dto.User;
 
 public class UserDAO {
 	
-	public boolean login (String email, String password) {
+	public int login (String email, String password) throws Exception {
 		try {
 			Connection con = new Database().Get_Connection();
-			String stmt = "SELECT password FROM Users WHERE email = ?";
+			String stmt = "SELECT password FROM USER WHERE email = ?";
 			
 			PreparedStatement ps = con.prepareStatement(stmt);
 			ps.setString(1, email);
@@ -23,20 +23,20 @@ public class UserDAO {
 			if (rs.next()) {
 				String dbPswd = rs.getString("password");
 				
-				if (dbPswd.equals(password)) return true;
-				else return false;
+				if (dbPswd.equals(password)) return getID(email);
+				else return -1;
 			}
 			
-			return false;
+			return -1;
 		} catch (Exception ex) {
-			return false;
+			throw ex;
 		}
 	}
 	
-	public boolean register (User user, String password) throws Exception{
+	public int register (User user, String password) throws Exception{
 		try {
 			Connection con = new Database().Get_Connection();
-			String stmt = "INSERT INTO Users VALUES (?, ?, ?, ?, ?, ?, NULL, NULL, NULL, ?)";
+			String stmt = "INSERT INTO USER VALUES (?, ?, ?, ?, ?, ?, NULL, NULL, NULL, ?)";
 			
 			PreparedStatement ps = con.prepareStatement(stmt);
 			ps.setInt(1, user.getId());
@@ -49,10 +49,26 @@ public class UserDAO {
 			
 			ps.executeUpdate();
 			
-			return true;
+			return getID(user.getEmail());
+		} catch (SQLException ex) {
+			throw ex;
+		}		
+	}
+
+	private int getID (String email) throws Exception {
+		try {
+			Connection con = new Database().Get_Connection();
+			String stmt = "SELECT id FROM USER WHERE email = ?";
+			
+			PreparedStatement ps = con.prepareStatement(stmt);
+			ps.setString(1, email);
+			
+			ResultSet rs = ps.executeQuery();
+			rs.next();
+			
+			return rs.getInt(1);
 		} catch (SQLException ex) {
 			throw ex;
 		}
-		
 	}
 }
