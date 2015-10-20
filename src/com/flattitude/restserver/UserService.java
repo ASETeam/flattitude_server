@@ -7,6 +7,9 @@ package com.flattitude.restserver;
  *  WARNING: All operations are done without security. It MUST be implemented everywhere!
  */
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -28,6 +31,7 @@ public class UserService {
 		try{
 			//Must be removed:
 			jsonObject.put("Operation", "Register");
+			
 			
 			
 			//Successful operation. 
@@ -99,4 +103,21 @@ public class UserService {
 		String result = jsonObject.toString();
 		return Response.status(200).entity(result).build();
 	  }
+	  
+	  private String cryptWithMD5(String pass){
+	    try {
+	        MessageDigest md = MessageDigest.getInstance("MD5");
+	        byte[] passBytes = pass.getBytes();
+	        md.reset();
+	        byte[] digested = md.digest(passBytes);
+	        StringBuffer sb = new StringBuffer();
+	        for(int i=0;i<digested.length;i++){
+	            sb.append(Integer.toHexString(0xff & digested[i]));
+	        }
+	        return sb.toString();
+	    } catch (NoSuchAlgorithmException ex) {}
+	        
+	    
+	    return null;
+	 }
 }
