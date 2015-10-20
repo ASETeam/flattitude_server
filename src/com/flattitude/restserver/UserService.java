@@ -10,7 +10,9 @@ package com.flattitude.restserver;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -19,29 +21,41 @@ import javax.ws.rs.core.Response;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.flattitude.dao.UserDAO;
+import com.flattitude.dto.User;
+
 @Path("/user")
 public class UserService {
 	
 	  @Path("/create")
-	  @GET
+	  @POST
 	  @Produces("application/json")
-	  public Response register() throws JSONException {
-		JSONObject jsonObject = new JSONObject();
+	  public Response register(@FormParam("email") String email,
+			  	@FormParam("password") String password,
+			  	@FormParam("firstname") String firstname,
+			  	@FormParam("lastname") String lastname,
+			  	@FormParam("phonenbr") String phone) throws JSONException {
 		
-		try{
-			//Must be removed:
-			jsonObject.put("Operation", "Register");
-			
-			
-			
-			//Successful operation. 
-			jsonObject.put("success", true);
-		} catch (Exception ex) {
-			jsonObject.put("success", false);
-			
-			//Manage errors properly.
-			jsonObject.put("reason", ex.getMessage());
-		}
+		  JSONObject jsonObject = new JSONObject();
+		
+			try{
+				//Must be removed:
+				jsonObject.put("Operation", "Register");
+				
+				UserDAO userDAO = new UserDAO();
+				
+				User user = new User(email, firstname, lastname);
+				user.setPhonenbr(phone);
+				boolean state = userDAO.register(user, cryptWithMD5(password));
+				
+				if (state) jsonObject.put("success", true);
+				else jsonObject.put("success", false);
+			} catch (Exception ex) {
+				jsonObject.put("success", false);
+				
+				//Manage errors properly.
+				jsonObject.put("reason", ex.getMessage());
+			}
 		
 
 		//String result = "@Produces(\"application/json\") Output: \n\nF to C Converter Output: \n\n" + jsonObject;

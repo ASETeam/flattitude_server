@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import com.flattitude.dto.User;
 
@@ -32,10 +33,10 @@ public class UserDAO {
 		}
 	}
 	
-	public boolean register (User user, String password) {
+	public boolean register (User user, String password) throws Exception{
 		try {
 			Connection con = new Database().Get_Connection();
-			String stmt = "INSERT INTO Users VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			String stmt = "INSERT INTO Users VALUES (?, ?, ?, ?, ?, ?, NULL, NULL, NULL, ?)";
 			
 			PreparedStatement ps = con.prepareStatement(stmt);
 			ps.setInt(1, user.getId());
@@ -44,11 +45,13 @@ public class UserDAO {
 			ps.setString(4, user.getFirstname());
 			ps.setString(5, user.getLastname());
 			ps.setString(6, user.getPhonenbr());
-			ps.setDate(10, new Date(System.currentTimeMillis()));
+			ps.setDate(7, new Date(System.currentTimeMillis()));
 			
-			return ps.execute();
-		} catch (Exception ex) {
-			return false;
+			ps.executeUpdate();
+			
+			return true;
+		} catch (SQLException ex) {
+			throw ex;
 		}
 		
 	}
