@@ -15,8 +15,7 @@ public class FlatMateDAO {
 			Connection con = new Database().Get_Connection();
 			
 			String stmt = "SELECT FLAT_ID, FLAT.NAME FROM USER_FLAT "
-					+ "INNER JOIN FLAT ON FLAT.ID = USER_FLAT.FLAT_ID "
-					+ "WHERE USER_ID = ? AND JOINEDTIME IS NULL ";
+						+ "WHERE USER_ID = ? AND JOINEDTIME IS NULL ";
 			
 			PreparedStatement ps = con.prepareStatement(stmt);
 			ps.setInt(1, idUser);
@@ -29,7 +28,6 @@ public class FlatMateDAO {
 			}
 			
 			return infoFlat;
-		
 		} catch (Exception sqlex) {
 			return null;
 		}
@@ -39,18 +37,18 @@ public class FlatMateDAO {
 		try {
 			Connection con = new Database().Get_Connection();
 			
-			String stmt = "INSERT INTO USER_FLAT VALUES (?, ?, ?, ?, ?, NULL, NULL, ?)";
+			String stmt = "INSERT INTO USER_FLAT (USER_ID, FLAT_ID, ISMASTER, INVITEDTIME, JOINEDTIME, LEFTTIME, ISACTIVE) "
+					+ "VALUES (?, ?, TRUE, ?, NULL, NULL, FALSE)";
+			
 			PreparedStatement ps = con.prepareStatement(stmt);
 			
-			ps.setInt(1, 0);
-			ps.setInt(2, idUser);
-			ps.setInt(3, idFlat);
-			ps.setBoolean(4, false);
-			ps.setDate(5, new Date(System.currentTimeMillis()));
-			ps.setBoolean(6, true);
+			ps.setInt(1, idUser);
+			ps.setInt(2, idFlat);
+			ps.setDate(3, new Date(System.currentTimeMillis()));
 			
-			return ps.execute();
+			ps.executeQuery();
 			
+			return true;
 		} catch (Exception sqlex) {
 			return false;
 		}
@@ -90,6 +88,30 @@ public class FlatMateDAO {
 		} catch (Exception sqlex) {
 			return false;
 		}
+	}
+
+	public boolean assignFlat(int idUser, int idFlat, boolean isMaster) {
+		try {
+			Connection con = new Database().Get_Connection();
+			
+			String stmt = "INSERT INTO USER_FLAT (USER_ID, FLAT_ID, ISMASTER, INVITEDTIME, JOINEDTIME, LEFTTIME, ISACTIVE) "
+					+ "VALUES (?, ?, ?, ?, ?, NULL, TRUE)";
+			
+			PreparedStatement ps = con.prepareStatement(stmt);
+			
+			ps.setInt(1, idUser);
+			ps.setInt(2, idFlat);
+			ps.setBoolean(3, isMaster);
+			ps.setDate(4, new Date(System.currentTimeMillis()));
+			ps.setDate(5, new Date(System.currentTimeMillis()));
+			
+			ps.executeQuery();
+			
+			return true;
+		} catch (Exception sqlex) {
+			return false;
+		}
+		
 	}
 	
 	

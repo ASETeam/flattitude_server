@@ -16,6 +16,20 @@ Password: adminadmin
 
 Then, undeploy the Flattitude Server and, down under, please deploy the new Flattitude by selecting the exported WAR file.
 
+---------
+
+CONNECTION TO DATABASE.
+
+Any of you that wants to connect into the database, please use MySQL Workbench or terminal.
+
+Server: flattitude-db.c8on6uurpxpe.us-west-2.rds.amazonaws.com
+Port: 3306
+
+User: root
+Pass: flattitude
+
+Database: flattitude_db
+
 Should you have any questions, do not hesitate telling me.
 
 Best,

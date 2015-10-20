@@ -7,27 +7,28 @@ import java.sql.ResultSet;
 
 import com.flattitude.dto.Flat;
 import com.flattitude.dto.User;
+import com.mysql.jdbc.Statement;
 
 public class FlatDAO {
 	
 	public int create (Flat flat)  {
 		try {
 			Connection con = new Database().Get_Connection();
-			String stmt = "INSERT INTO FLAT VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			String stmt = "INSERT INTO USER_FLAT (NAME, COUNTRY, CITY, POSTCODE, ADDRESS, IBAN, CREATIONTIME, DELETETIME) "
+					+ "VALUES (?, ?, ?, ?, ?, ?, NULL)";
 			
-			PreparedStatement ps = con.prepareStatement(stmt);
-			ps.setInt(1, flat.getId());
-			ps.setString(2, flat.getName());
-			ps.setString(3, flat.getCountry());
-			ps.setString(4, flat.getCity());
-			ps.setString(5, flat.getPostcode());
-			ps.setString(6, flat.getAddress());
-			ps.setString(7, flat.getIban());
-			ps.setDate(8, new Date(System.currentTimeMillis()));
+			PreparedStatement ps = con.prepareStatement(stmt, Statement.RETURN_GENERATED_KEYS);
+			ps.setString(1, flat.getName());
+			ps.setString(2, flat.getCountry());
+			ps.setString(3, flat.getCity());
+			ps.setString(4, flat.getPostcode());
+			ps.setString(5, flat.getAddress());
+			ps.setString(6, flat.getIban());
+			ps.setDate(7, new Date(System.currentTimeMillis()));
 			
-			ps.executeQuery();
+			int idFlat = ps.executeUpdate();
 			
-			return 1;
+			return idFlat;
 		} catch (Exception ex) {
 			return -1;
 		}

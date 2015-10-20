@@ -18,6 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.flattitude.dao.FlatDAO;
+import com.flattitude.dao.FlatMateDAO;
 import com.flattitude.dto.Flat;
 
 @Path("/flat")
@@ -43,12 +44,15 @@ public class FlatService {
 			Flat flat = new Flat(name, country, address, postcode, city, IBAN);
 			FlatDAO flatDAO = new FlatDAO();
 			
-			int id = flatDAO.create(flat);
+			int idFlat = flatDAO.create(flat);
 			
-			if (id > -1) {
+			FlatMateDAO fmDAO = new FlatMateDAO();
+			fmDAO.assignFlat (Integer.valueOf(masterid), idFlat, true);
+			
+			if (idFlat > -1) {
 				//Successful operation. 
 				jsonObject.put("success", true);
-				jsonObject.put("id", id);
+				jsonObject.put("id", idFlat);
 			} else {
 				jsonObject.put("success", false);
 			}

@@ -55,6 +55,39 @@ public class UserDAO {
 		}		
 	}
 
+	public User getInfoUser (int idUser) throws Exception {
+		try {
+			Connection con = new Database().Get_Connection();
+			String stmt = "SELECT * FROM USER WHERE ID = ?";
+			
+			PreparedStatement ps = con.prepareStatement(stmt);
+			ps.setInt(1, idUser);
+			
+			ResultSet rs = ps.executeQuery();
+			
+			User user = null;
+			
+			while (rs.next()) {
+				String email = rs.getString("EMAIL");
+				String firstName = rs.getString("FIRSTNAME");
+				String lastName = rs.getString("LASTNAME");
+				String phoneNbr = rs.getString("PHONENBR");
+				String birthDate = rs.getString("BIRTHDATE");
+				String IBAN = rs.getString("IBAN");
+				
+				user = new User(email, firstName, lastName);
+				user.setPhonenbr(phoneNbr);
+				user.setBirthdate(Date.valueOf(birthDate));
+				user.setIban(IBAN);
+			}
+			
+			return user;
+		} catch (Exception ex) {
+			throw ex;
+		}
+		
+	}
+	
 	private int getID (String email) throws Exception {
 		try {
 			Connection con = new Database().Get_Connection();
@@ -71,4 +104,6 @@ public class UserDAO {
 			throw ex;
 		}
 	}
+	
+	
 }
