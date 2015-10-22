@@ -72,12 +72,14 @@ public class UserDAO {
 				String firstName = rs.getString("FIRSTNAME");
 				String lastName = rs.getString("LASTNAME");
 				String phoneNbr = rs.getString("PHONENBR");
-				String birthDate = rs.getString("BIRTHDATE");
+				
+				Date birthDate = rs.getDate("BIRTHDAY");
+				
 				String IBAN = rs.getString("IBAN");
 				
 				user = new User(email, firstName, lastName);
 				user.setPhonenbr(phoneNbr);
-				user.setBirthdate(Date.valueOf(birthDate));
+				user.setBirthdate(birthDate);
 				user.setIban(IBAN);
 			}
 			

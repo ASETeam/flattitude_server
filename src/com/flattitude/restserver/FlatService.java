@@ -38,6 +38,7 @@ public class FlatService {
 		JSONObject jsonObject = new JSONObject();
 		
 		try{
+			
 			//Must be removed:
 			jsonObject.put("Operation", "Flat Creation");
 			
@@ -56,6 +57,7 @@ public class FlatService {
 			} else {
 				jsonObject.put("success", false);
 			}
+			
 		} catch (Exception ex) {
 			jsonObject.put("success", false);
 			
@@ -63,7 +65,6 @@ public class FlatService {
 			jsonObject.put("reason", ex.getMessage());
 		}
 		
-
 		//String result = "@Produces(\"application/json\") Output: \n\nF to C Converter Output: \n\n" + jsonObject;
 		String result = jsonObject.toString();
 		return Response.status(200).entity(result).build();

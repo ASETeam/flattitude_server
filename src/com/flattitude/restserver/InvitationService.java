@@ -7,6 +7,8 @@ package com.flattitude.restserver;
  *  WARNING: All operations are done without security. It MUST be implemented everywhere!
  */
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Map;
 
 import javax.ws.rs.FormParam;
@@ -31,8 +33,8 @@ public class InvitationService {
 	  @Path("/create")
 	  @POST	
 	  @Produces("application/json")
-	  public Response createInvitation(@PathParam("idUser") String idUser,
-			  @PathParam("idFlat") String idFlat) throws JSONException {
+	  public Response createInvitation(@FormParam("idUser") String idUser,
+			  @FormParam("idFlat") String idFlat) throws JSONException {
 		
 		JSONObject jsonObject = new JSONObject();
 		JSONObject jsonProfile;
@@ -62,7 +64,13 @@ public class InvitationService {
 			jsonObject.put("success", false);
 			
 			//Manage errors properly.
-			jsonObject.put("reason", ex.getMessage());
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			ex.printStackTrace(pw);
+			
+			jsonObject.put("reason", sw.toString());
+			jsonObject.put("idFlat", idFlat);
+			jsonObject.put("idUser", idUser);
 		}
 		
 

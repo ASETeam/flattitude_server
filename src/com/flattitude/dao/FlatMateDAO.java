@@ -10,11 +10,12 @@ import java.util.Map;
 public class FlatMateDAO {
 	
 	//Make join??
-	public Map<String, String> getInvitations(int idUser)  {
+	public Map<String, String> getInvitations(int idUser) throws Exception {
 		try {
 			Connection con = new Database().Get_Connection();
 			
 			String stmt = "SELECT FLAT_ID, FLAT.NAME FROM USER_FLAT "
+						+ "INNER JOIN FLAT ON FLAT.ID = FLAT_ID "
 						+ "WHERE USER_ID = ? AND JOINEDTIME IS NULL ";
 			
 			PreparedStatement ps = con.prepareStatement(stmt);
@@ -29,11 +30,11 @@ public class FlatMateDAO {
 			
 			return infoFlat;
 		} catch (Exception sqlex) {
-			return null;
+			throw sqlex;
 		}
 	}
 	
-	public boolean createInvitation(int idUser, int idFlat) {
+	public boolean createInvitation(int idUser, int idFlat) throws Exception {
 		try {
 			Connection con = new Database().Get_Connection();
 			
@@ -46,34 +47,35 @@ public class FlatMateDAO {
 			ps.setInt(2, idFlat);
 			ps.setDate(3, new Date(System.currentTimeMillis()));
 			
-			ps.executeQuery();
+			ps.executeUpdate();
 			
 			return true;
 		} catch (Exception sqlex) {
-			return false;
+			throw sqlex;
 		}
 	}
 	
-	public boolean acceptInvitation(int idUser, int idFlat) {
+	public boolean acceptInvitation(int idUser, int idFlat) throws Exception {
 		try {
 			Connection con = new Database().Get_Connection();
 			
-			String stmt = "UPDATE FROM USER_FLAT WHERE USER_ID = ? AND FLAT_ID = ? SET JOINEDTIME = ?";
+			String stmt = "UPDATE FROM USER_FLAT SET JOINEDTIME = ? WHERE USER_ID = ? AND FLAT_ID = ? ";
 			PreparedStatement ps = con.prepareStatement(stmt);
 			
-			ps.setInt(1, idUser);
-			ps.setInt(2, idFlat);
-			ps.setDate(3, new Date(System.currentTimeMillis()));
-
-			return ps.execute();
+			ps.setDate(1, new Date(System.currentTimeMillis()));
+			ps.setInt(2, idUser);
+			ps.setInt(3, idFlat);
 			
+			ps.executeUpdate();
+			
+			return true;
 		} catch (Exception sqlex) {
-			return false;
+			throw sqlex;
 		}
 
 	}
 	
-	public boolean deleteInvitation(int idUser, int idFlat) {
+	public boolean deleteInvitation(int idUser, int idFlat) throws Exception {
 		try {
 			Connection con = new Database().Get_Connection();
 			
@@ -83,14 +85,15 @@ public class FlatMateDAO {
 			ps.setInt(1, idUser);
 			ps.setInt(2, idFlat);
 
-			return ps.execute();
+			ps.executeUpdate();
 			
+			return true;
 		} catch (Exception sqlex) {
-			return false;
+			throw sqlex;
 		}
 	}
 
-	public boolean assignFlat(int idUser, int idFlat, boolean isMaster) {
+	public boolean assignFlat(int idUser, int idFlat, boolean isMaster) throws Exception {
 		try {
 			Connection con = new Database().Get_Connection();
 			
@@ -109,7 +112,7 @@ public class FlatMateDAO {
 			
 			return true;
 		} catch (Exception sqlex) {
-			return false;
+			throw sqlex;
 		}
 		
 	}

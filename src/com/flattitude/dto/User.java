@@ -35,7 +35,7 @@ public class User {
 	}
 
 	public void setEmail(String email) {
-		this.email = new String(email);
+		this.email = email;
 	}
 
 	public String getFirstname() {
@@ -43,7 +43,7 @@ public class User {
 	}
 
 	public void setFirstname(String firstname) {
-		this.firstname = new String(firstname);
+		this.firstname = firstname;
 	}
 
 	public String getLastname() {
@@ -51,7 +51,7 @@ public class User {
 	}
 
 	public void setLastname(String lastname) {
-		this.lastname = new String(lastname);
+		this.lastname = lastname;
 	}
 
 	public String getPhonenbr() {
@@ -59,7 +59,7 @@ public class User {
 	}
 
 	public void setPhonenbr(String phonenbr) {
-		this.phonenbr = new String(phonenbr);
+		this.phonenbr = phonenbr;
 	}
 
 	public Date getBirthdate() {
@@ -75,7 +75,7 @@ public class User {
 	}
 
 	public void setIban(String iban) {
-		this.iban = new String(iban);
+		this.iban = iban;
 	}
 
 	public boolean isLoggedin() {
