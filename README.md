@@ -1,10 +1,11 @@
 Hello Flattitude!
 
 In order to connect to the Tomcat server, please go to the following link:
-http://ec2-52-27-170-102.us-west-2.compute.amazonaws.com:8080/
+https://flattiserver-flattitude.rhcloud.com/flattiserver
 
 In order to call the WebService, please go to:
-http://ec2-52-27-170-102.us-west-2.compute.amazonaws.com:8080/FlattitudeServer/flattitude/{service}/{function}
+https://flattiserver-flattitude.rhcloud.com/flattiserver/{service}/{function}
+
 
 Please note that {service} and {function} correspond to the paths that are at the JAVA classes.
 They respond to what is specified in the API REST document.
@@ -20,15 +21,9 @@ Then, undeploy the Flattitude Server and, down under, please deploy the new Flat
 
 CONNECTION TO DATABASE.
 
+It is still on the board to connect into the database externally. It will be a bit complex as the application is under my account I have to check how can I give you permissions.
+
 Any of you that wants to connect into the database, please use MySQL Workbench or terminal.
-
-Server: flattitude-db.c8on6uurpxpe.us-west-2.rds.amazonaws.com
-Port: 3306
-
-User: root
-Pass: flattitude
-
-Database: flattitude_db
 
 Should you have any questions, do not hesitate telling me.
 

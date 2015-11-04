@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class User {
 
-	private final int id = 0; // This is an special case for this model, since
+	private int id = 0; // This is an special case for this model, since
 								// we will have only one user
 	private String email;
 	private String firstname;
@@ -30,6 +30,10 @@ public class User {
 		return id;
 	}
 
+	public void setId(int id) {
+		this.id = id;
+	}
+	
 	public String getEmail() {
 		return email;
 	}

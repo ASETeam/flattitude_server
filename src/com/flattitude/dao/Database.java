@@ -9,11 +9,10 @@ public class Database {
 	{
 		try
 		{
-		//mysql -h flattitude-db.c8on6uurpxpe.us-west-2.rds.amazonaws.com -P 3306 -u root -p
-			String connectionURL = "jdbc:mysql://flattitude-db.c8on6uurpxpe.us-west-2.rds.amazonaws.com:3306/flattitude_db";
+			String connectionURL = "jdbc:mysql://127.11.227.130:3306/flattiserver";
 			Connection connection = null;
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			connection = DriverManager.getConnection(connectionURL, "root", "flattitude");
+			connection = DriverManager.getConnection(connectionURL, "adminSpKe4EG", "5lNar9GztR3u");
 		    return connection;
 		} catch (SQLException e) {
 			throw e;	

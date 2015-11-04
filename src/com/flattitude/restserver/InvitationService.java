@@ -13,6 +13,7 @@ import java.util.Map;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -29,11 +30,14 @@ import com.flattitude.dto.User;
 
 @Path("/invitation")
 public class InvitationService {
+	private final boolean TOKEN_CTRL = false;
 	
 	  @Path("/create")
 	  @POST	
 	  @Produces("application/json")
-	  public Response createInvitation(@FormParam("idUser") String idUser,
+	  public Response createInvitation(@HeaderParam("Auth") String token,
+			  @FormParam("idMaster") String idMaster,
+			  @FormParam("email") String email,
 			  @FormParam("idFlat") String idFlat) throws JSONException {
 		
 		JSONObject jsonObject = new JSONObject();
@@ -45,13 +49,15 @@ public class InvitationService {
 			
 			jsonProfile = new JSONObject();
 			FlatMateDAO fmDAO = new FlatMateDAO();
+			UserDAO userDAO = new UserDAO();
 			
-			boolean result = fmDAO.createInvitation(Integer.valueOf(idUser), Integer.valueOf(idFlat));
+			User user = userDAO.getInfoUser(email);
 			
-			if (result) {
-				UserDAO userDAO = new UserDAO();
-				User user = userDAO.getInfoUser(Integer.valueOf(idUser));
-				
+			boolean result = fmDAO.createInvitation(user.getId(), Integer.valueOf(idFlat));
+			
+			//if (TOKEN_CTRL && userDAO.checkToken(token)) throw new Exception("Token not valid. Please login."); 
+			
+			if (result) {		
 				jsonProfile.put("firstname", user.getFirstname());
 				jsonProfile.put("lastname", user.getLastname());
 				jsonProfile.put("email", user.getEmail());
@@ -69,12 +75,8 @@ public class InvitationService {
 			ex.printStackTrace(pw);
 			
 			jsonObject.put("reason", sw.toString());
-			jsonObject.put("idFlat", idFlat);
-			jsonObject.put("idUser", idUser);
 		}
 		
-
-		//String result = "@Produces(\"application/json\") Output: \n\nF to C Converter Output: \n\n" + jsonObject;
 		String result = jsonObject.toString();
 		return Response.status(200).entity(result).build();
 	  }
@@ -83,7 +85,8 @@ public class InvitationService {
 	  @Path("/consult/{idUser}")
 	  @GET
 	  @Produces("application/json")
-	  public Response checkInvitation(@PathParam("idUser") String idUser) throws JSONException {
+	  public Response checkInvitation(@HeaderParam("Auth") String token,
+			  @PathParam("idUser") String idUser) throws JSONException {
 		JSONObject jsonObject = new JSONObject();
 		
 		try{
@@ -91,6 +94,10 @@ public class InvitationService {
 			jsonObject.put("Operation", "Check Invitation");
 			
 			FlatMateDAO fmDAO = new FlatMateDAO();
+			UserDAO userDAO = new UserDAO();
+			//if (TOKEN_CTRL && userDAO.checkToken(token)) throw new Exception("Token not valid. Please login.");
+			
+			
 			Map<String, String> results = fmDAO.getInvitations(Integer.valueOf(idUser));
 			
 			JSONArray jsonArray = new JSONArray();
@@ -118,7 +125,8 @@ public class InvitationService {
 	  @Path("/respond")
 	  @POST
 	  @Produces("application/json")
-	  public Response respondInvitation(@FormParam("idUser") String idUser,
+	  public Response respondInvitation(@HeaderParam("Auth") String token,
+			  @FormParam("idUser") String idUser,
 			  @FormParam("idFlat") String idFlat,
 			  @FormParam("accepted") boolean accepted) throws JSONException {
 		
@@ -129,6 +137,8 @@ public class InvitationService {
 			jsonObject.put("Operation", "Respond Invitation");
 			
 			FlatMateDAO fmDAO = new FlatMateDAO();
+			UserDAO userDAO = new UserDAO();
+			//if (TOKEN_CTRL && userDAO.checkToken(token)) throw new Exception("Token not valid. Please login.");
 			
 			//Successful operation. 
 			boolean result;
@@ -146,8 +156,6 @@ public class InvitationService {
 			jsonObject.put("reason", ex.getMessage());
 		}
 		
-
-		//String result = "@Produces(\"application/json\") Output: \n\nF to C Converter Output: \n\n" + jsonObject;
 		String result = jsonObject.toString();
 		return Response.status(200).entity(result).build();
 	  }

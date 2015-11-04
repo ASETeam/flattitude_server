@@ -14,7 +14,7 @@ public class FlatMateDAO {
 		try {
 			Connection con = new Database().Get_Connection();
 			
-			String stmt = "SELECT FLAT_ID, FLAT.NAME FROM USER_FLAT "
+			String stmt = "SELECT FLAT_ID, FLAT.NAME FROM USER_FLAT " 
 						+ "INNER JOIN FLAT ON FLAT.ID = FLAT_ID "
 						+ "WHERE USER_ID = ? AND JOINEDTIME IS NULL ";
 			
@@ -108,7 +108,7 @@ public class FlatMateDAO {
 			ps.setDate(4, new Date(System.currentTimeMillis()));
 			ps.setDate(5, new Date(System.currentTimeMillis()));
 			
-			ps.executeQuery();
+			ps.executeUpdate();
 			
 			return true;
 		} catch (Exception sqlex) {

@@ -1,6 +1,5 @@
 package com.flattitude.dto;
 
-
 public class Flat {
     private final int id = 0;
     private String serverid;

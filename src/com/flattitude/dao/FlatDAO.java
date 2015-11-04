@@ -3,6 +3,8 @@ package com.flattitude.dao;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
 import com.flattitude.dto.Flat;
 import com.mysql.jdbc.Statement;
 
@@ -23,7 +25,12 @@ public class FlatDAO {
 			ps.setString(6, flat.getIban());
 			ps.setDate(7, new Date(System.currentTimeMillis()));
 			
-			int idFlat = ps.executeUpdate();
+			ps.executeUpdate();
+			
+			ResultSet rs = ps.getGeneratedKeys();
+			rs.next();
+			
+			int idFlat = rs.getInt(1);
 			
 			return idFlat;
 		} catch (Exception ex) {
