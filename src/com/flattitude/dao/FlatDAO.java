@@ -22,7 +22,6 @@ public class FlatDAO {
 			ps.setString(3, flat.getCity());
 			ps.setString(4, flat.getPostcode());
 			ps.setString(5, flat.getAddress());
-			ps.setString(6, flat.getIban());
 			ps.setDate(7, new Date(System.currentTimeMillis()));
 			
 			ps.executeUpdate();

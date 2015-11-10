@@ -8,16 +8,14 @@ public class Flat {
     private String city;
     private String postcode;
     private String address;
-    private String iban;
 
     
-    public Flat(String name, String country, String city, String postcode, String address, String iban) {
+    public Flat(String name, String country, String city, String postcode, String address) {
     	this.setName(name);
     	this.setCountry(country);
     	this.setCity(city);
     	this.setPostcode(postcode);
     	this.setAddress(address);
-    	this.setIban(iban);
     }
     
     public int getId() {
@@ -70,13 +68,5 @@ public class Flat {
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public String getIban() {
-        return iban;
-    }
-
-    public void setIban(String iban) {
-        this.iban = iban;
     }
 }

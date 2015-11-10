@@ -49,7 +49,7 @@ public class FlatService {
 			UserDAO userDAO = new UserDAO();
 			//if (TOKEN_CTRL && userDAO.checkToken(token)) throw new Exception("Token not valid. Please login.");
 			
-			Flat flat = new Flat(name, country, address, postcode, city, IBAN);
+			Flat flat = new Flat(name, country, address, postcode, city);
 			FlatDAO flatDAO = new FlatDAO();
 			
 			int idFlat = flatDAO.create(flat);
@@ -83,7 +83,7 @@ public class FlatService {
 			JSONObject jsonObject = new JSONObject();
 			
 			try{
-				Flat flat = new Flat("SexyFlat", "Spain", "Riera Blanca 4", "08903", "BCN", "123456789");
+				Flat flat = new Flat("SexyFlat", "Spain", "Riera Blanca 4", "08903", "BCN");
 				FlatDAO flatDAO = new FlatDAO();
 				
 				int idFlat = flatDAO.create(flat);
