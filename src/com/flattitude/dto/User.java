@@ -11,8 +11,6 @@ public class User {
 	private String lastname;
 	private String phonenbr;
 	private Date birthdate;
-	private String iban;
-	private byte[] picture;
 	private boolean loggedin;
 
 	public User(String email, String firstname, String lastname) {
@@ -21,8 +19,6 @@ public class User {
 		this.setLastname(new String(lastname));
 		this.setPhonenbr("");
 		this.setBirthdate(null);
-		this.setIban("");
-		this.setPicture(new byte[0]);
 		this.setLoggedin(false);
 	}
 
@@ -74,27 +70,11 @@ public class User {
 		this.birthdate = birthdate;
 	}
 
-	public String getIban() {
-		return iban;
-	}
-
-	public void setIban(String iban) {
-		this.iban = iban;
-	}
-
 	public boolean isLoggedin() {
 		return loggedin;
 	}
 
 	public void setLoggedin(boolean loggedin) {
 		this.loggedin = loggedin;
-	}
-
-	public byte[] getPicture() {
-		return picture;
-	}
-
-	public void setPicture(byte[] picture) {
-		this.picture = picture;
 	}
 }

@@ -163,7 +163,6 @@ public class UserService {
 				jsonObject.put("lastname", user.getLastname());
 				jsonObject.put("phonenbr", user.getPhonenbr());
 				jsonObject.put("birthdate", user.getBirthdate());
-				jsonObject.put("iban", user.getIban());
 
 			} else {
 				jsonObject.put("success", false);

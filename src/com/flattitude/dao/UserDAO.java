@@ -81,12 +81,9 @@ public class UserDAO {
 				
 				Date birthDate = rs.getDate("BIRTHDAY");
 				
-				String IBAN = rs.getString("IBAN");
-				
 				user = new User(email, firstName, lastName);
 				user.setPhonenbr(phoneNbr);
 				user.setBirthdate(birthDate);
-				user.setIban(IBAN);
 			}
 			
 			return user;
@@ -116,12 +113,9 @@ public class UserDAO {
 				
 				Date birthDate = rs.getDate("BIRTHDAY");
 				
-				String IBAN = rs.getString("IBAN");
-				
 				user = new User(email, firstName, lastName);
 				user.setPhonenbr(phoneNbr);
 				user.setBirthdate(birthDate);
-				user.setIban(IBAN);
 				user.setId(id);
 			}
 			
