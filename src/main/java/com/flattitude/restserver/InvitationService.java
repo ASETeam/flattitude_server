@@ -10,6 +10,7 @@ package com.flattitude.restserver;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -26,6 +27,7 @@ import org.json.JSONObject;
 
 import com.flattitude.dao.FlatMateDAO;
 import com.flattitude.dao.UserDAO;
+import com.flattitude.dto.Flat;
 import com.flattitude.dto.User;
 
 @Path("/invitation")
@@ -97,13 +99,22 @@ public class InvitationService {
 			UserDAO userDAO = new UserDAO();
 			//if (TOKEN_CTRL && userDAO.checkToken(token)) throw new Exception("Token not valid. Please login.");
 			
-			
-			Map<String, String> results = fmDAO.getInvitations(Integer.valueOf(idUser));
+			Set<Flat> results = fmDAO.getInvitations(Integer.valueOf(idUser));
 			
 			JSONArray jsonArray = new JSONArray();
 			
-			for (String key : results.keySet()) {
-				jsonArray.put(results.get(key));
+			for (Flat flat : results) {
+				
+				JSONObject jsonFlat = new JSONObject();
+				
+				jsonFlat.put("name", flat.getName());
+				jsonFlat.put("country", flat.getCountry());
+				jsonFlat.put("city", flat.getCity());
+				jsonFlat.put("postcode", flat.getPostcode());
+				jsonFlat.put("address", flat.getAddress());
+				jsonFlat.put("iban", flat.getIban());
+				
+				jsonArray.put(jsonFlat);
 			}
 			
 			//Successful operation. 

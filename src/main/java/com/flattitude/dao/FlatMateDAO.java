@@ -4,17 +4,18 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
+
+import com.flattitude.dto.Flat;
 
 public class FlatMateDAO {
 	
-	//Make join??
-	public Map<String, String> getInvitations(int idUser) throws Exception {
+	public Set<Flat> getInvitations(int idUser) throws Exception {
 		try {
 			Connection con = new Database().Get_Connection();
 			
-			String stmt = "SELECT FLAT_ID, FLAT.NAME FROM USER_FLAT " 
+			String stmt = "SELECT FLAT_ID, FLAT.NAME, FLAT.COUNTRY, FLAT.CITY, FLAT.POSTCODE, FLAT.ADDRESS, FLAT.IBAN FROM USER_FLAT " 
 						+ "INNER JOIN FLAT ON FLAT.ID = FLAT_ID "
 						+ "WHERE USER_ID = ? AND JOINEDTIME IS NULL ";
 			
@@ -22,10 +23,16 @@ public class FlatMateDAO {
 			ps.setInt(1, idUser);
 			ResultSet rs = ps.executeQuery();
 			
-			Map<String, String> infoFlat = new HashMap<String, String>();
+			Set<Flat> infoFlat = new HashSet<Flat>();
 			
 			while (rs.next()) {
-				infoFlat.put(rs.getString(1), rs.getString(2));
+				infoFlat.add(new Flat(
+						rs.getString("FLAT.NAME"),
+						rs.getString("FLAT.COUNTRY"),
+						rs.getString("FLAT.CITY"),
+						rs.getString("FLAT.POSTCODE"),
+						rs.getString("FLAT.ADDRESS"),
+						rs.getString("FLAT.IBAN")));
 			}
 			
 			return infoFlat;
@@ -117,8 +124,4 @@ public class FlatMateDAO {
 		
 	}
 	
-	
-	/*public boolean quit() {
-		
-	}*/
 }

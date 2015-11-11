@@ -81,9 +81,12 @@ public class UserDAO {
 				
 				Date birthDate = rs.getDate("BIRTHDAY");
 				
+				String IBAN = rs.getString("IBAN");
+				
 				user = new User(email, firstName, lastName);
 				user.setPhonenbr(phoneNbr);
 				user.setBirthdate(birthDate);
+				user.setIban(IBAN);
 			}
 			
 			return user;
@@ -113,9 +116,12 @@ public class UserDAO {
 				
 				Date birthDate = rs.getDate("BIRTHDAY");
 				
+				String IBAN = rs.getString("IBAN");
+				
 				user = new User(email, firstName, lastName);
 				user.setPhonenbr(phoneNbr);
 				user.setBirthdate(birthDate);
+				user.setIban(IBAN);
 				user.setId(id);
 			}
 			
@@ -156,6 +162,25 @@ public class UserDAO {
 			throw ex;
 		}
 	} 
+	
+	public boolean checkToken (String token) throws Exception {
+		try {
+			Connection con = new Database().Get_Connection();
+			String stmt = "SELECT TOP 1 ID FROM USER WHERE TOKEN = ?";
+			
+			PreparedStatement ps = con.prepareStatement(stmt);
+			ps.setString(1, token);
+			
+			ResultSet rs = ps.executeQuery();
+			boolean exists = rs.next();
+			
+			return exists;
+			
+		} catch (Exception ex) {
+			throw ex;
+		}
+		
+	}
 	
 	private int getID (String email) throws Exception {
 		try {

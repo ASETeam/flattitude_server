@@ -12,6 +12,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
@@ -49,7 +50,7 @@ public class FlatService {
 			UserDAO userDAO = new UserDAO();
 			//if (TOKEN_CTRL && userDAO.checkToken(token)) throw new Exception("Token not valid. Please login.");
 			
-			Flat flat = new Flat(name, country, address, postcode, city);
+			Flat flat = new Flat(name, country, address, postcode, city, IBAN);
 			FlatDAO flatDAO = new FlatDAO();
 			
 			int idFlat = flatDAO.create(flat);
@@ -76,39 +77,42 @@ public class FlatService {
 		return Response.status(200).entity(result).build();
 	  }
 	  
-	  @Path("/testflat")
+	  @Path("/info/{flatid}")
 	  @GET
 	  @Produces("application/json") 
-	  public Response testFlat() throws JSONException {
-			JSONObject jsonObject = new JSONObject();
+	  public Response getInfoFlat(@HeaderParam("Auth") String token, @PathParam("flatid") String flatid) {
+		JSONObject jsonObject = new JSONObject();
+		
+		try{
+			//Must be removed:
+			jsonObject.put("Operation", "QuitFlat");
+			UserDAO userDAO = new UserDAO();
+			//if (TOKEN_CTRL && userDAO.checkToken(token)) throw new Exception("Token not valid. Please login.");
+				
+			FlatDAO flatDAO = new FlatDAO();
+			Flat flat = flatDAO.getInfo(flatid);
+			JSONObject jsonFlat = new JSONObject();
 			
-			try{
-				Flat flat = new Flat("SexyFlat", "Spain", "Riera Blanca 4", "08903", "BCN");
-				FlatDAO flatDAO = new FlatDAO();
-				
-				int idFlat = flatDAO.create(flat);
-				
-				FlatMateDAO fmDAO = new FlatMateDAO();
-				fmDAO.assignFlat (Integer.valueOf(1), idFlat, true);
-				
-				if (idFlat > -1) {
-					//Successful operation. 
-					jsonObject.put("success", true);
-					jsonObject.put("id", idFlat);
-				} else {
-					jsonObject.put("success", false);
-				}
-			} catch (Exception ex) {
-				jsonObject.put("success", false);
-				
-				//Manage errors properly.
-				jsonObject.put("reason", ex.getMessage());
-			}
+			jsonFlat.put("name", flat.getName());
+			jsonFlat.put("country", flat.getCountry());
+			jsonFlat.put("city", flat.getCity());
+			jsonFlat.put("postcode", flat.getPostcode());
+			jsonFlat.put("address", flat.getAddress());
+			jsonFlat.put("iban", flat.getIban());
 			
-
-			//String result = "@Produces(\"application/json\") Output: \n\nF to C Converter Output: \n\n" + jsonObject;
-			String result = jsonObject.toString();
-			return Response.status(200).entity(result).build();
+			
+			//Successful operation. 
+			jsonObject.put("success", true);
+			jsonObject.put("flat", jsonFlat);
+		} catch (Exception ex) {
+			jsonObject.put("success", false);
+			
+			//Manage errors properly.
+			jsonObject.put("reason", ex.getMessage());
+		}
+		
+		String result = jsonObject.toString();
+		return Response.status(200).entity(result).build();
 	  }
 	  
 	  @Path("/quit")
