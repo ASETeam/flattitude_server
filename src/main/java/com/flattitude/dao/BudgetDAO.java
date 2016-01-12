@@ -9,36 +9,38 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.flattitude.dto.BudgetOperation;
 import com.flattitude.dto.Task;
 import com.mysql.jdbc.Statement;
 
-public class TaskDAO {
+public class BudgetDAO {
 	
-	public int addTask (Task task) throws Exception {
+	public List<BudgetOperation> getFlatHistoric (int flatid) throws Exception {
 		try {
 			Connection con = new Database().Get_Connection();
-			String stmt = "INSERT INTO TASK (author, flat, type, description, date, duration) "
-					+ "VALUES (?, ?, ?, ?, ?, ?)";
+			String stmt = "SELECT * FROM BUDGET_OPERATION WHERE FLAT = ? ORDER BY DATE DESC";
 			
-			PreparedStatement ps = con.prepareStatement(stmt, Statement.RETURN_GENERATED_KEYS);
-			ps.setInt(1, task.getUserID());
-			ps.setInt(2, task.getFlatID());
-			ps.setInt(3, task.getType());
-			ps.setString(4, task.getDescription());
+			PreparedStatement ps = con.prepareStatement(stmt);
+			ps.setInt(1, flatid);
 			
-			java.sql.Timestamp timestamp = new java.sql.Timestamp(task.getTime().getTime());
-			ps.setTimestamp(5, timestamp);
+			ResultSet rs = ps.executeQuery();
 			
-			ps.setInt(6, task.getDuration());
+			List<BudgetOperation> operations = new ArrayList<BudgetOperation>();
 			
-			ps.executeUpdate();
+			while (rs.next()) {
+				BudgetOperation bo = new BudgetOperation (
+							rs.getInt(1),
+							rs.getInt(2),
+							rs.getInt(3),
+							rs.getFloat(4),
+							rs.getDate(5),
+							rs.getString(6)
+						);
+				
+				operations.add(bo);
+			}
 			
-			ResultSet rs = ps.getGeneratedKeys();
-			rs.next();
-			
-			int idObject = rs.getInt(1);
-						
-			return idObject;
+			return operations;
 		} catch (Exception ex) {
 			throw ex;
 		}

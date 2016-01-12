@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 
 import com.flattitude.dto.User;
 import com.mysql.jdbc.Statement;
@@ -47,7 +48,11 @@ public class UserDAO {
 			ps.setString(3, user.getFirstname());
 			ps.setString(4, user.getLastname());
 			ps.setString(5, user.getPhonenbr());
-			ps.setDate(6, new Date(System.currentTimeMillis()));
+			
+			java.util.Date dt = new java.util.Date();
+			java.sql.Timestamp timestamp = new java.sql.Timestamp(dt.getTime());
+			
+			ps.setTimestamp(6, timestamp);
 			
 			ps.executeUpdate();
 			
@@ -132,16 +137,33 @@ public class UserDAO {
 		
 	}	
 	
-	public void updateToken (String token, int id) throws Exception {
+	public String updateToken (String token, int id) throws Exception {
 		try {
 			Connection con = new Database().Get_Connection();
-			String stmt = "UPDATE USER SET token = ? WHERE id = ?";
+			
+			String stmt = "SELECT TOKEN FROM USER WHERE id = ?";
 			
 			PreparedStatement ps = con.prepareStatement(stmt);
-			ps.setString(1, token);
-			ps.setInt(2, id);
+			ps.setInt(1, id);
 			
-			ps.executeUpdate();
+			ResultSet rs = ps.executeQuery();
+			rs.next();
+			
+			String oldToken = rs.getString("TOKEN");
+			
+			if (oldToken == null) {
+				stmt = "UPDATE USER SET token = ? WHERE id = ?";
+				
+				ps = con.prepareStatement(stmt);
+				ps.setString(1, token);
+				ps.setInt(2, id);
+				
+				ps.executeUpdate();
+				
+				return token;
+				
+			} else return oldToken;
+			
 			
 		} catch (Exception ex) {
 			throw ex;

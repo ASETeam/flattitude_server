@@ -7,7 +7,14 @@ package com.flattitude.restserver;
  *  WARNING: All operations are done without security. It MUST be implemented everywhere!
  */
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -26,6 +33,7 @@ import org.json.JSONObject;
 
 import com.flattitude.dao.UserDAO;
 import com.flattitude.dto.User;
+import com.sun.jersey.core.util.Base64;
 
 @Path("/user")
 public class UserService {
@@ -56,16 +64,21 @@ public class UserService {
 
 			jsonObject.put("success", true);
 			jsonObject.put("id", id);
-			
+
 			String token = nextSessionId();
 			userDAO.updateToken(token, id);
+			// registerChatUser(id, user.getFirstname(), user.getEmail(),
+			// password);
 
 			jsonObject.put("token", token);
 		} catch (Exception ex) {
 			jsonObject.put("success", false);
 
 			// Manage errors properly.
+			StringWriter errors = new StringWriter();
+			ex.printStackTrace(new PrintWriter(errors));
 			jsonObject.put("reason", ex.getMessage());
+			jsonObject.put("more", errors.toString());
 		}
 
 		String result = jsonObject.toString();
@@ -92,7 +105,8 @@ public class UserService {
 				jsonObject.put("id", id);
 
 				String token = nextSessionId();
-				userDAO.updateToken(token, id);
+
+				token = userDAO.updateToken(token, id);
 
 				jsonObject.put("token", token);
 			} else {
@@ -106,9 +120,6 @@ public class UserService {
 			jsonObject.put("reason", ex.getMessage());
 		}
 
-		// String result =
-		// "@Produces(\"application/json\") Output: \n\nF to C Converter Output: \n\n"
-		// + jsonObject;
 		String result = jsonObject.toString();
 		return Response.status(200).entity(result).build();
 	}
@@ -116,7 +127,8 @@ public class UserService {
 	@Path("/logout/{id}")
 	@GET
 	@Produces("application/json")
-	public Response logout(@HeaderParam("Auth") String token, @PathParam("id") String id) throws JSONException {
+	public Response logout(@HeaderParam("Auth") String token,
+			@PathParam("id") String id) throws JSONException {
 		JSONObject jsonObject = new JSONObject();
 
 		try {
@@ -142,10 +154,41 @@ public class UserService {
 		return Response.status(200).entity(result).build();
 	}
 
+	@Path("/checkChat/{id}")
+	@GET
+	@Produces("application/json")
+	public Response check(@HeaderParam("Auth") String token,
+			@PathParam("id") String id) throws JSONException {
+		JSONObject jsonObject = new JSONObject();
+
+		try {
+			// Must be removed:
+			jsonObject.put("Operation", "Check Chat");
+			String successChat = registerChatUser(Integer.parseInt(id),
+					"guille", "rufian", "12345");
+
+			jsonObject.put("success", true);
+			jsonObject.put("content", successChat);
+		} catch (Exception ex) {
+			jsonObject.put("success", false);
+
+			// Manage errors properly.
+			StringWriter errors = new StringWriter();
+			ex.printStackTrace(new PrintWriter(errors));
+			jsonObject.put("reason", ex.getMessage());
+			jsonObject.put("more", errors.toString());
+		}
+
+		String result = jsonObject.toString();
+		return Response.status(200).entity(result).build();
+	}
+
 	@Path("/getinfo/{id}")
 	@GET
 	@Produces("application/json")
-	public Response getInfo(@HeaderParam("Auth") String token, @PathParam("id") String id) throws JSONException {
+	public Response getInfo(@HeaderParam("Auth") String token,
+			@PathParam("id") String id) throws JSONException {
+
 		JSONObject jsonObject = new JSONObject();
 
 		try {
@@ -174,42 +217,12 @@ public class UserService {
 
 			// Manage errors properly.
 			jsonObject.put("reason", ex.getMessage());
+
 		}
 
 		String result = jsonObject.toString();
 		return Response.status(200).entity(result).build();
-	}
 
-	@Path("/test/{id}")
-	@GET
-	@Produces("application/json")
-	public Response testHeader(@HeaderParam("Auth") String token,
-			@PathParam("id") String id) throws JSONException {
-
-		JSONObject jsonObject = new JSONObject();
-
-		try {
-			// Must be removed:
-			jsonObject.put("Operation", "TestToken");
-
-			// if (TOKEN_CTRL && userDAO.checkToken(token)) throw new
-			// Exception("Token not valid. Please login.");
-
-
-			// Successful operation.
-			jsonObject.put("success", true);
-			jsonObject.put("ID", id);
-			jsonObject.put("Auth", token);
-			
-		} catch (Exception ex) {
-			jsonObject.put("success", false);
-
-			// Manage errors properly.
-			jsonObject.put("reason", ex.getMessage());
-		}
-
-		String result = jsonObject.toString();
-		return Response.status(200).entity(result).build();
 	}
 
 	private String cryptWithMD5(String pass) {
@@ -231,5 +244,60 @@ public class UserService {
 
 	public String nextSessionId() {
 		return new BigInteger(130, random).toString(32);
+	}
+
+	public String registerChatUser(int id, String name, String email,
+			String password) throws Exception {
+		try {
+			URL url = new URL(
+					"http://ec2-54-218-39-214.us-west-2.compute.amazonaws.com:9090/plugins/restapi/v1/users/");
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setDoOutput(true);
+			conn.setRequestMethod("POST");
+
+			String base64 = new String(Base64.encode(
+					new String("admin" + ":" + "GRT1234").getBytes()));
+			conn.setRequestProperty("Authorization", "Basic " + base64);
+			conn.setRequestProperty("Content-Type", "application/xml");
+
+			String input = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+					+ "<user><username>"
+					+ id
+					+ "</username>"
+					+ "<name>"
+					+ name
+					+ "</name>"
+					+ "<email>"
+					+ email
+					+ "</email>"
+					+ "<password>"
+					+ password + "</password>" + "</user>";
+
+			OutputStream os = conn.getOutputStream();
+			os.write(input.getBytes());
+			os.flush();
+
+			if (conn.getResponseCode() != HttpURLConnection.HTTP_CREATED) {
+				throw new RuntimeException("Failed : HTTP error code : "
+						+ conn.getResponseCode());
+			}
+
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+					(conn.getInputStream())));
+
+			String output = "";
+			String line;
+			while ((line = br.readLine()) != null) {
+				output += line;
+			}
+
+			conn.disconnect();
+
+			return output;
+		} catch (Exception e) {
+
+			throw e;
+
+		}
 	}
 }

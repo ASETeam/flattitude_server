@@ -1,7 +1,7 @@
 package com.flattitude.dto;
 
 public class Flat {
-    private final int id = 0;
+    private int id = 0;
     private String serverid;
     private String name;
     private String country;
@@ -20,10 +20,14 @@ public class Flat {
     	this.setIban(iban);
     }
     
-    public int getId() {
+    public int getID() {
         return id;
     }
 
+    public void setID(int flatId) {
+    	this.id = flatId;
+    }
+    
     public String getServerid() {
         return serverid;
     }

@@ -8,6 +8,7 @@ package com.flattitude.restserver;
  */
 
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -24,60 +25,88 @@ import org.json.JSONObject;
 
 import com.flattitude.dao.FlatDAO;
 import com.flattitude.dao.FlatMateDAO;
+import com.flattitude.dao.NotificationDAO;
 import com.flattitude.dao.SharedObjectDAO;
 import com.flattitude.dao.UserDAO;
 import com.flattitude.dto.Flat;
 import com.flattitude.dto.SharedObject;
+import com.flattitude.dto.Task;
+import com.flattitude.notification.dto.FlatInvitationNotification;
+import com.flattitude.notification.dto.ObjectPositionNotification;
+import com.flattitude.notification.dto.TaskNotification;
 
 @Path("/notification")
 public class NotificationService {
 	  private final boolean TOKEN_CTRL = false;
 	  
-	  @Path("/{flatid}/groupview")
-	  @POST
+	  @Path("/getNotifications/{userId}")
+	  @GET
 	  @Produces("application/json")
-	  public Response groupNotification(@HeaderParam("Auth") String token, 
-			  @PathParam("flatid") String flatid,
-			  @PathParam("timestamp") String timestamp) throws JSONException {
-		  
+	  public Response getUserNotifications(@HeaderParam("Auth") String token,
+			  @PathParam("userId") String idUser) throws JSONException {
 		JSONObject jsonObject = new JSONObject();
 		
 		try{
 			//Must be removed:
-			jsonObject.put("Operation", "Group Notification");
+			jsonObject.put("Operation", "Get Notifications");
 			
 			UserDAO userDAO = new UserDAO();
 			//if (TOKEN_CTRL && userDAO.checkToken(token)) throw new Exception("Token not valid. Please login.");
-		
-			SharedObjectDAO soDAO = new SharedObjectDAO();
 			
-			List<SharedObject> sharedObjects = soDAO.getNotNotifiedObjects(Integer.valueOf(flatid), timestamp);
+			NotificationDAO notiDAO = new NotificationDAO();
+			//FlatMateDAO fmDAO = new FlatMateDAO();
+			//Flat flat = fmDAO.getUserFlat(Integer.valueOf(idUser));
 			
-			boolean hasNotifications = sharedObjects.size() > 0;
+			Set<ObjectPositionNotification> objects = notiDAO.getRemainingObjectNotis(Integer.valueOf(idUser));
 			
-			if (hasNotifications) {
-				//Successful operation. 
-				jsonObject.put("hasNotifications", true);
-				JSONArray jsonArray = new JSONArray();
-				
-				for (SharedObject obj : sharedObjects) {
-					JSONObject jsonShared = new JSONObject();
-					jsonShared.put("time", obj.getTime());
-					jsonShared.put("name", obj.getName());
-					jsonShared.put("description", obj.getDescription());
-					jsonShared.put("latitude", obj.getLatitude());
-					jsonShared.put("longitude", obj.getLongitude());
-					
-					jsonArray.put(jsonShared);
-				}
-				
-				jsonObject.put("sharedObject", jsonArray);
-				
-			} else {
-				jsonObject.put("hasNotifications", false);
-				
+			JSONArray jsonObjects = new JSONArray();
+			
+			for (ObjectPositionNotification opn : objects) {			
+				JSONObject jsonObj = new JSONObject();
+				jsonObj.put("type", "object_moved");
+				jsonObj.put("id", opn.getNotifId());
+				jsonObj.put("date", opn.getTime());
+				jsonObj.put("sender", opn.getSenderId());
+				jsonObj.put("object_id", opn.getObjectId());
+	
+				jsonObjects.put(jsonObj);
+			}
+
+			Set<FlatInvitationNotification> invitations = notiDAO.getRemainingInvitationNotis(Integer.valueOf(idUser));
+			
+			JSONArray jsonInvitations = new JSONArray();
+			
+			for (FlatInvitationNotification fin : invitations) {			
+				JSONObject jsonFlat = new JSONObject();
+				jsonFlat.put("type", "flat_invitation");
+				jsonFlat.put("id", fin.getNotifId());
+				jsonFlat.put("date", fin.getTime());
+				jsonFlat.put("sender", fin.getSenderId());
+				jsonFlat.put("flat_id", fin.getFlatId());
+	
+				jsonInvitations.put(jsonFlat);
 			}
 			
+			Set<TaskNotification> tasks = notiDAO.getRemainingTaskNotis(Integer.valueOf(idUser));
+			
+			JSONArray jsonTasks = new JSONArray();
+			
+			for (TaskNotification task : tasks) {			
+				JSONObject jsonTask = new JSONObject();
+				jsonTask.put("type", "task_notification");
+				jsonTask.put("id", task.getNotifId());
+				jsonTask.put("date", task.getTime());
+				jsonTask.put("sender", task.getSenderId());
+				jsonTask.put("task_id", task.getTaskId());
+	
+				jsonTasks.put(jsonTask);
+			}
+			
+			//Successful operation. 
+			jsonObject.put("invitation_notifications", jsonInvitations);
+			jsonObject.put("object_notifications", jsonObjects);
+			jsonObject.put("task_notifications", jsonTasks);
+			jsonObject.put("success", true);
 		} catch (Exception ex) {
 			jsonObject.put("success", false);
 			
@@ -89,4 +118,33 @@ public class NotificationService {
 		return Response.status(200).entity(result).build();
 	  }
 	  
+	  @Path("/retrievedNotification/{notifID}")
+	  @GET
+	  @Produces("application/json")
+	  public Response ackNotification(@HeaderParam("Auth") String token,
+			  @PathParam("notifID") String notifId) throws JSONException {
+		JSONObject jsonObject = new JSONObject();
+		
+		try{
+			//Must be removed:
+			jsonObject.put("Operation", "Get Notifications");
+			
+			UserDAO userDAO = new UserDAO();
+			//if (TOKEN_CTRL && userDAO.checkToken(token)) throw new Exception("Token not valid. Please login.");
+			
+			NotificationDAO notiDAO = new NotificationDAO();
+			notiDAO.updateSeenNotification(Integer.valueOf(notifId));
+			
+			//Successful operation. 
+			jsonObject.put("success", true);
+		} catch (Exception ex) {
+			jsonObject.put("success", false);
+			
+			//Manage errors properly.
+			jsonObject.put("reason", ex.getMessage());
+		}
+		
+		String result = jsonObject.toString();
+		return Response.status(200).entity(result).build();
+	  }
 }

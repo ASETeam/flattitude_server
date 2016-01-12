@@ -3,23 +3,40 @@ package com.flattitude.dto;
 import java.util.Date;
 
 public class SharedObject {
+	private int objectID;
 	private int flatID;
+	private int userID;
     private Date time;
     private String name;
     private String description;
     private float latitude;
     private float longitude;
     
-    public SharedObject() {}
+    public SharedObject() {
+    	this.objectID = -1;
+    	this.latitude = -1;
+    	this.longitude = -1;
+    	this.name = null;
+    	this.description = null;
+    }
     
-    public SharedObject (int flatID, Date time, String name, String description, float locX, float locY) {
+    public SharedObject (int flatID, int userID, Date time, String name, String description, float locX, float locY) {
     	this.setFlatID(flatID);
+    	this.setUserID(userID);
     	this.setTime(time);
     	this.setName(name);
     	this.setDescription(description);
     	this.setLatitude(locX);
     	this.setLongitude(locY);
     }
+    
+	public int getID() {
+		return objectID;
+	}
+
+	public void setID(int objectID) {
+		this.objectID = objectID;
+	}
     
 	public int getFlatID() {
 		return flatID;
@@ -29,6 +46,14 @@ public class SharedObject {
 		this.flatID = flatID;
 	}
 
+	public int getUserID() {
+		return userID;
+	}
+
+	public void setUserID(int userID) {
+		this.userID = userID;
+	}
+	
 	public Date getTime() {
 		return time;
 	}
@@ -68,6 +93,4 @@ public class SharedObject {
 	public void setLongitude(float longitude) {
 		this.longitude = longitude;
 	}
-
-
 }

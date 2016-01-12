@@ -25,7 +25,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.flattitude.dao.FlatDAO;
 import com.flattitude.dao.FlatMateDAO;
+import com.flattitude.dao.NotificationDAO;
 import com.flattitude.dao.UserDAO;
 import com.flattitude.dto.Flat;
 import com.flattitude.dto.User;
@@ -52,6 +54,7 @@ public class InvitationService {
 			jsonProfile = new JSONObject();
 			FlatMateDAO fmDAO = new FlatMateDAO();
 			UserDAO userDAO = new UserDAO();
+			NotificationDAO notiDAO = new NotificationDAO();
 			
 			User user = userDAO.getInfoUser(email);
 			
@@ -60,6 +63,10 @@ public class InvitationService {
 			//if (TOKEN_CTRL && userDAO.checkToken(token)) throw new Exception("Token not valid. Please login."); 
 			
 			if (result) {		
+				int notId = notiDAO.createGenericNotification(Integer.valueOf(idMaster));
+				notiDAO.createFlatInvitationNotification(notId, Integer.valueOf(idFlat));
+				notiDAO.createUserNotification(user.getId(), notId);
+				
 				jsonProfile.put("firstname", user.getFirstname());
 				jsonProfile.put("lastname", user.getLastname());
 				jsonProfile.put("email", user.getEmail());
@@ -106,7 +113,7 @@ public class InvitationService {
 			for (Flat flat : results) {
 				
 				JSONObject jsonFlat = new JSONObject();
-				
+				jsonFlat.put("flatid", flat.getID());
 				jsonFlat.put("name", flat.getName());
 				jsonFlat.put("country", flat.getCountry());
 				jsonFlat.put("city", flat.getCity());
@@ -127,11 +134,11 @@ public class InvitationService {
 			jsonObject.put("reason", ex.getMessage());
 		}
 		
-
-		//String result = "@Produces(\"application/json\") Output: \n\nF to C Converter Output: \n\n" + jsonObject;
 		String result = jsonObject.toString();
 		return Response.status(200).entity(result).build();
 	  }
+	  
+	  
 	  
 	  @Path("/respond")
 	  @POST
