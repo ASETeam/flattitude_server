@@ -14,8 +14,8 @@ public class FlatDAO {
 	public int create (Flat flat) throws Exception {
 		try {
 			Connection con = new Database().Get_Connection();
-			String stmt = "INSERT INTO FLAT (NAME, COUNTRY, CITY, POSTCODE, ADDRESS, IBAN, CREATIONTIME, DELETIONTIME) "
-					+ "VALUES (?, ?, ?, ?, ?, ?, ?, NULL)";
+			String stmt = "INSERT INTO FLAT (NAME, COUNTRY, CITY, POSTCODE, ADDRESS, IBAN, CREATIONTIME, DELETIONTIME, BALANCE) "
+					+ "VALUES (?, ?, ?, ?, ?, ?, ?, NULL, 0)";
 			
 			PreparedStatement ps = con.prepareStatement(stmt, Statement.RETURN_GENERATED_KEYS);
 			ps.setString(1, flat.getName());

@@ -3,12 +3,14 @@ package com.flattitude.dto;
 import java.util.Date;
 
 public class BudgetOperation {
-	private int id;
+	private int id = 0;
 	private int flatid;
 	private int userid;
 	private float amount;
 	private Date date;
 	private String description;
+	
+	public BudgetOperation () {}
 	
 	public BudgetOperation (int id, int flatid, int userid, float amount, Date date, String description) {
 		this.id = id;

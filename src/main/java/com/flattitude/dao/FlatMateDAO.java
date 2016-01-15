@@ -229,7 +229,7 @@ public class FlatMateDAO {
 		try {
 			Connection con = new Database().Get_Connection();
 			
-			String stmt = "SELECT USER_ID FROM USER_FLAT WHERE USER_ID = ?";
+			String stmt = "SELECT BALANCE FROM USER_FLAT WHERE USER_ID = ? AND ISACTIVE = 1";
 					
 			PreparedStatement ps = con.prepareStatement(stmt);
 			ps.setInt(1, userid);
@@ -249,12 +249,12 @@ public class FlatMateDAO {
 		try {
 			Connection con = new Database().Get_Connection();
 			
-			String stmt = "UPDATE USER_FLAT SET BALANCE = ? WHERE USER_ID = ?";
+			String stmt = "UPDATE USER_FLAT SET BALANCE = ? WHERE USER_ID = ? AND ISACTIVE = 1";
 					
 			PreparedStatement ps = con.prepareStatement(stmt);
 			ps.setFloat(1, amount);
 			ps.setInt(2, userid);
-						
+			
 			ps.executeUpdate();
 			
 			return true;

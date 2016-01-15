@@ -28,17 +28,18 @@ import com.flattitude.dao.FlatMateDAO;
 import com.flattitude.dao.UserDAO;
 import com.flattitude.dto.BudgetOperation;
 import com.flattitude.dto.Flat;
+import com.flattitude.dto.User;
 
 @Path("/budget")
 public class BudgetService {
 	private final boolean TOKEN_CTRL = false;
 
-	@Path("/balances")
-	@GET
+	@Path("/balances/get")
+	@POST
 	@Produces("application/json")
 	public Response getBalance(@HeaderParam("Auth") String token,
-			@PathParam("flatid") String flatid, 
-			@PathParam("userid") String userid) throws JSONException {
+			@FormParam("flatid") String flatid, 
+			@FormParam("userid") String userid) throws JSONException {
 
 		JSONObject jsonObject = new JSONObject();
 
@@ -72,11 +73,11 @@ public class BudgetService {
 	}
 
 	@Path("/history")
-	@GET
+	@POST
 	@Produces("application/json")
 	public Response getHistoricBalance(@HeaderParam("Auth") String token,
-			@PathParam("flatid") String flatid, 
-			@PathParam("userid") String userid) throws JSONException {
+			@FormParam("flatid") String flatid, 
+			@FormParam("userid") String userid) throws JSONException {
 
 		JSONObject jsonObject = new JSONObject();
 
@@ -89,8 +90,8 @@ public class BudgetService {
 			// Exception("Token not valid. Please login.");
 
 			JSONArray array = new JSONArray();
-			
 			BudgetDAO bmDAO = new BudgetDAO();
+			UserDAO userDAO = new UserDAO();
 			
 			List<BudgetOperation> operations = bmDAO.getFlatHistoric(Integer.valueOf(flatid));
 			
@@ -98,18 +99,22 @@ public class BudgetService {
 				JSONObject jsonBudget = new JSONObject();
 				jsonBudget.put("id", bo.getId());
 				jsonBudget.put("flatid", bo.getFlatid());
-				jsonBudget.put("userid", bo.getUserid());
+				
+				if (bo.getUserid() != -1) {
+					User user = userDAO.getInfoUser(bo.getUserid());
+					jsonBudget.put("userName", user.getLastname());
+				} else {
+					jsonBudget.put("userName", "");
+				}
+				
 				jsonBudget.put("amount", bo.getAmount());
 				jsonBudget.put("date", bo.getDate());
 				jsonBudget.put("description", bo.getDescription());
 				
-				array.put(jsonObject);
+				array.put(jsonBudget);
 			}
 			
 			jsonObject.put("historic", array);
-			
-			String result = jsonObject.toString();
-			return Response.status(200).entity(result).build();
 		} catch (Exception ex) {
 			jsonObject.put("success", false);
 
@@ -121,45 +126,6 @@ public class BudgetService {
 		return Response.status(200).entity(result).build();
 	}	
 	
-	@Path("/info/{flatid}")
-	@GET
-	@Produces("application/json")
-	public Response getInfoFlat(@HeaderParam("Auth") String token,
-			@PathParam("flatid") String flatid) {
-		JSONObject jsonObject = new JSONObject();
-
-		try {
-			// Must be removed:
-			jsonObject.put("Operation", "Get Flat");
-			UserDAO userDAO = new UserDAO();
-			// if (TOKEN_CTRL && userDAO.checkToken(token)) throw new
-			// Exception("Token not valid. Please login.");
-
-			FlatDAO flatDAO = new FlatDAO();
-			Flat flat = flatDAO.getInfo(flatid);
-			JSONObject jsonFlat = new JSONObject();
-
-			jsonFlat.put("name", flat.getName());
-			jsonFlat.put("country", flat.getCountry());
-			jsonFlat.put("city", flat.getCity());
-			jsonFlat.put("postcode", flat.getPostcode());
-			jsonFlat.put("address", flat.getAddress());
-			jsonFlat.put("iban", flat.getIban());
-
-			// Successful operation.
-			jsonObject.put("success", true);
-			jsonObject.put("flat", jsonFlat);
-		} catch (Exception ex) {
-			jsonObject.put("success", false);
-
-			// Manage errors properly.
-			jsonObject.put("reason", ex.getMessage());
-		}
-
-		String result = jsonObject.toString();
-		return Response.status(200).entity(result).build();
-	}
-
 	@Path("/put")
 	@POST
 	@Produces("application/json")
@@ -178,7 +144,19 @@ public class BudgetService {
 			FlatDAO flatDAO = new FlatDAO();
 			// if (TOKEN_CTRL && userDAO.checkToken(token)) throw new
 			// Exception("Token not valid. Please login.");
-
+			
+			BudgetOperation bo = new BudgetOperation ();
+			bo.setFlatid(Integer.valueOf(flatid));
+			
+			if (userid == null) bo.setUserid(-1);
+			else bo.setUserid(Integer.valueOf(userid));
+			
+			bo.setAmount(Float.valueOf(amount));
+			bo.setDescription(description);
+			
+			BudgetDAO bdDAO = new BudgetDAO();
+			bdDAO.createBudgetOperation(bo);
+			
 			float flatBalance = flatDAO.getFlatBalance(Integer.valueOf(flatid));
 			flatDAO.modifyBalance(Integer.valueOf(flatid), flatBalance+Float.valueOf(amount));
 			
@@ -186,7 +164,6 @@ public class BudgetService {
 			
 			float personalBalance = fmDAO.getUserBalance(Integer.valueOf(userid));
 			fmDAO.modifyBalance(Integer.valueOf(userid), personalBalance+Float.valueOf(amount));
-			
 			
 			// Successful operation.
 			jsonObject.put("success", true);
@@ -214,20 +191,42 @@ public class BudgetService {
 
 		try {
 			// Must be removed:
-			jsonObject.put("Operation", "Put money budget");
+			jsonObject.put("Operation", "Take out money from budget");
 
 			FlatDAO flatDAO = new FlatDAO();
 			// if (TOKEN_CTRL && userDAO.checkToken(token)) throw new
 			// Exception("Token not valid. Please login.");
 
+			BudgetOperation bo = new BudgetOperation ();
+			bo.setFlatid(Integer.valueOf(flatid));
+			bo.setUserid(Integer.valueOf(userid));
+			bo.setAmount(-Float.valueOf(amount));
+			bo.setDescription(description);
+			
+			BudgetDAO bdDAO = new BudgetDAO();
+			bdDAO.createBudgetOperation(bo);
+			
 			float flatBalance = flatDAO.getFlatBalance(Integer.valueOf(flatid));
 			flatDAO.modifyBalance(Integer.valueOf(flatid), flatBalance-Float.valueOf(amount));
 			
 			FlatMateDAO fmDAO = new FlatMateDAO();
-			int totalMembers = fmDAO.getFlatMembers(Integer.valueOf(flatid)).size();
 			
-			float personalBalance = fmDAO.getUserBalance(Integer.valueOf(userid));
-			fmDAO.modifyBalance(Integer.valueOf(userid), personalBalance-(Float.valueOf(amount)/totalMembers));
+			//Pay equity.
+			float money = Float.valueOf(amount) * 100;
+			List<Integer> members = fmDAO.getFlatMembers(Integer.valueOf(flatid));
+
+			float rest = Math.round(money % members.size());
+			float amountExact = ((money - rest)/members.size()) / 100;
+			float amountExactRested = (float) Math.floor((money - rest)/members.size() + rest)*100 ;
+			
+			int i = 0;
+			for (i = 0; i < members.size()-1; i++) {
+				float personalBalance = fmDAO.getUserBalance(members.get(i));
+				fmDAO.modifyBalance(Integer.valueOf(members.get(i)), personalBalance-amountExact);	
+			}
+			
+			float personalBalance = fmDAO.getUserBalance(members.get(i));
+			fmDAO.modifyBalance(members.get(i), personalBalance-amountExactRested);	
 			
 			// Successful operation.
 			jsonObject.put("success", true);
